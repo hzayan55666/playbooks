@@ -1,0 +1,17 @@
+---
+ - hosts: Radius
+   tasks:
+     - name: Fetch the file from the Radius1 to master
+       run_once: yes
+       fetch: src=/etc/freeradius/3.0/clients.conf dest=buffer/ flat=yes
+       when: "{{ inventory_hostname == '10.10.10.35' }}"
+
+     - name: Copy the file from master to Radius2
+       copy: src=buffer/clients.conf dest=/etc/freeradius/3.0/
+       when: "{{ inventory_hostname == '10.10.10.36' }}"
+
+     - name: Stop Radius
+       ansible.builtin.shell: systemctl stop freeradius
+
+     - name: Start Radius
+       ansible.builtin.shell: freeradius -X || /bin/true
